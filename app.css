@@ -1,0 +1,28 @@
+body{
+    background-color: black;
+    font-family: sans-serif;
+}
+
+.docker-wrapper{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.dock{
+    display: flex;
+}
+
+.dock-icon {
+    width: 64px;
+    height: 64px;
+    outline: solid 1px white;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center bottom;
+}
