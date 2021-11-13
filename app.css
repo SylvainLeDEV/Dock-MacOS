@@ -19,10 +19,24 @@ body{
 .dock-icon {
     width: 64px;
     height: 64px;
-    outline: solid 1px white;
+    /*outline: solid 1px white;*/
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     transform-origin: center bottom;
+    background: transparent;
+    border: none;
+
+}
+
+.dock.animated .dock-icon{
+    transition: .1s;
+    transition-property: transform, transform-origin ;
+}
+
+.dock-icon img{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }

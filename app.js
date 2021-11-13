@@ -17,10 +17,10 @@ function scaling(d) {
     return Math.max(Math.min(-0.2 * Math.pow(d, 2) + 1.05, 1), 0);
 }
 
-const tranformOrigins = {
-    '-1': 'right',
-    '0': 'center',
-    '1': 'left'
+const TransformOrigins = {
+    '-1': "right",
+    '0': "center",
+    '1': "left",
 }
 
 /**
@@ -41,11 +41,13 @@ class Dock {
     constructor(el) {
         this.root = el;
         this.icons = Array.from(el.children);
-        if (this.icons === 0) {
+        if (this.icons.length === 0) {
             return;
         }
         this.iconSize = this.icons[0].offsetWidth;
         el.addEventListener('mousemove', this.handleMouseMove.bind(this))
+        el.addEventListener('mouseleave', this.handleMouseLeave.bind(this))
+        el.addEventListener('mouseenter', this.handleMouseEnter.bind(this))
     }
 
     /**
@@ -54,9 +56,13 @@ class Dock {
      */
 
     handleMouseMove(e) {
-        this.mousePosition = between((e.clientX - this.root.offsetLeft) / this.iconSize, 0, this.icons.length);
+        this.mousePosition = between(
+            (e.clientX - this.root.offsetLeft) / this.iconSize,
+            0,
+            this.icons.length);
+        console.log(this.icons.length)
         this.scaleIcons();
-        // console.log(this.mousePosition)
+
     };
 
     /**
@@ -64,18 +70,20 @@ class Dock {
      */
     scaleIcons() {
         const selectedIndex = Math.floor(this.mousePosition);
+        const centerOffset = this.mousePosition - selectedIndex - 0.5;
+        console.log({centerOffset})
 
-        let baseOffset = this.scaleFromDirection(selectedIndex, 0, 0) / 2;
-        let offset = baseOffset / 2
-        for (let i = selectedIndex + 1; i <= this.icons.length; i++) {
+        let baseOffset = this.scaleFromDirection(selectedIndex, 0, -centerOffset * this.iconSize);
+        let offset = baseOffset * (0.5 - centerOffset)
+        for (let i = selectedIndex + 1; i < this.icons.length; i++) {
             offset += this.scaleFromDirection(i, 1, offset)
         }
-        ;
-        offset = baseOffset / 2
-        for (let i = selectedIndex + 1; i >= 0; i--) {
-            offset += this.scaleFromDirection(i, 1, -offset)
+
+        offset = baseOffset * (0.5 + centerOffset)
+        for (let i = selectedIndex - 1; i >= 0; i--) {
+            offset += this.scaleFromDirection(i, -1, -offset)
         }
-        ;
+
     }
 
     /**
@@ -88,19 +96,36 @@ class Dock {
         const center = index + 0.5;
         const distanceFromPointer = this.mousePosition - center
         const scale = scaling(distanceFromPointer) * this.scale;
-        const icon = this.icons[index]
-        icon.style.setProperty(
-            'transform',
-            `translateX(${offset}px) scale(${scale+1})`
-        );
+        const icon = this.icons[index];
+        if (icon) {
+            icon.style.setProperty(
+                "transform",
+                `translateX(${offset}px) scale(${scale + 1})`
+            );
 
-        icon.style.setProperty(
-            'transform-origin',
-            `${tranformOrigins[direction.toString()]} bottom`);
-        return scale * this.iconSize
-
+            icon.style.setProperty(
+                "transform-origin",
+                `${TransformOrigins[direction.toString()]} bottom`);
+            return scale * this.iconSize;
+        }
 
     }
+
+    handleMouseLeave() {
+        this.root.classList.add("animated");
+        this.icons.forEach((icon) => {
+            icon.style.removeProperty("transform")
+            icon.style.removeProperty("transform-origin")
+        })
+    }
+
+    handleMouseEnter() {
+        this.root.classList.add("animated");
+        window.setTimeout(() => {
+            this.root.classList.remove("animated");
+        }, 100)
+    }
+
 }
 
 new Dock(document.querySelector(".dock"))
